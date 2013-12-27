@@ -7,6 +7,17 @@ echo ' *------------------------------------------------------------------------
 echo '|      SoundcloudMusicDownloader(cURL/Wget version) |  Team SourcE rework      |'
 echo ' *----------------------------------------------------------------------------*'
 
+
+function settags() {
+    artist=$1
+    title=$2
+    filename=$3
+    id3v2 -a "$artist" "$filename"
+    id3v2 -t "$title" "$filename"
+    id3v2 -y $(date +%Y) "$filename"
+	echo '[i] Setting tags complete!'
+}
+
 function downsong() { #Done!
 	# Grab Info
 	echo "[i] Grabbing song page"
@@ -19,7 +30,7 @@ function downsong() { #Done!
     title=$(echo "$page" | grep -A1 "<em itemprop=\"name\">" | tail -n1 | sed 's/\\u0026/\&/g' | recode html..ascii)
     filename=$(echo "$title".mp3 | tr '/' '\\' | tr '*' '+')
     songurl=$(curl -s -L --user-agent 'Mozilla/5.0' "https://api.sndcdn.com/i1/tracks/$id/streams?client_id=$clientID" | cut -d '"' -f 4 | sed 's/\\u0026/\&/g')
-	#artist=$(echo "$page" | grep byArtist | sed 's/.*itemprop="name">\([^<]*\)<.*/\1/g')
+	artist=$(echo "$page" | grep byArtist | sed 's/.*itemprop="name">\([^<]*\)<.*/\1/g')
     # DL
 		if [ -e "$filename" ]; then
 		echo "[!] The song $filename has already been downloaded..."  && exit
@@ -31,6 +42,7 @@ function downsong() { #Done!
 	else
 		wget -c --max-redirect=1000 --trust-server-names -U 'Mozilla/5.0' -O "$filename" "$songurl";
 	fi
+	settags "$artist" "$title" "$filename"
 	echo "[i] Downloading of $filename finished."
 	echo ''
 }
@@ -78,6 +90,7 @@ function downallsongs() { #Done!
 		else
 			wget -c --max-redirect=1000 --trust-server-names -U 'Mozilla/5.0' -O "$filename" "$songurl";
 		fi
+		settags "$artist" "$title" "$filename"
 		echo "[i] Downloading of $filename finished."
 		echo ''
 	done
@@ -199,8 +212,9 @@ else
   echo "[!] cURL or Wget need to be installed."; exit 1;
 fi
 command -v recode &>/dev/null || { echo "[!] Recode needs to be installed."; exit 1; }
-
+command -v id3v2 &>/dev/null || { echo "[!] id3v2 needs to be installed to write tags into mp3 file."; writetags=false; }
 url=$(echo "$1" | sed 's-.*soundcloud.com/-http://soundcloud.com/-' | cut -d "?" -f 1)
+
 echo "[i] Using URL $url"
 
 clientID="b45b1aa10f1ac2941910a7f0d10f8e28"
