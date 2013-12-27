@@ -86,7 +86,7 @@ function downallsongs() { #Done!
 			songurl=$(wget -q --max-redirect=1000 --trust-server-names -O- -U 'Mozilla/5.0' "https://api.sndcdn.com/i1/tracks/$songID/streams?client_id=$clientID" | cut -d '"' -f 4 | sed 's/\\u0026/\&/g')
 		fi
 		if $curlinstalled; then
-			curl -C -# -L --user-agent 'Mozilla/5.0' -o "$filename" "$songurl";
+			curl -# -C  -L --user-agent 'Mozilla/5.0' -o "$filename" "$songurl";
 		else
 			wget -c --max-redirect=1000 --trust-server-names -U 'Mozilla/5.0' -O "$filename" "$songurl";
 		fi
@@ -136,7 +136,7 @@ function downset() {  #done!
             songurl=$(wget -q --max-redirect=1000 --trust-server-names -U -O- 'Mozilla/5.0' "https://api.sndcdn.com/i1/tracks/$id/streams?client_id=$clientID" | cut -d '"' -f 4 | sed 's/\\u0026/\&/g')
         fi
 		if $curlinstalled; then
-			curl -C -# -L --user-agent 'Mozilla/5.0' -o "$filename" "$songurl";
+			curl -# -C  -L --user-agent 'Mozilla/5.0' -o "$filename" "$songurl";
 		else
 			wget -c --max-redirect=1000 --trust-server-names -U 'Mozilla/5.0' -O "$filename" "$songurl";
 		fi
