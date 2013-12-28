@@ -57,6 +57,7 @@ function downallsongs() { #Done!
 	fi
 	clientID=$(echo "$page" | grep "clientID" | tr "," "\n" | grep "clientID" | cut -d '"' -f 4)
 	artistID=$(echo "$page" | tr "," "\n" | grep "trackOwnerId" | head -n 1 | cut -d ":" -f 2) 
+	echo "$artistID"
 	echo "[i] Grabbing all song info"
 	if $curlinstalled; then
 		songs=$(curl -s -L --user-agent 'Mozilla/5.0' "https://api.sndcdn.com/e1/users/$artistID/sounds?limit=256&offset=0&linked_partitioning=1&client_id=$clientID" | tr -d "\n" | sed 's/<stream-item>/\n/g' | sed '1d')
@@ -74,6 +75,7 @@ function downallsongs() { #Done!
 	do	
 		title=$(echo "$songs" | sed -n "$i"p | tr ">" "\n" | grep "</title" | cut -d "<" -f 1)
 		filename=$(echo "$title".mp3 | tr '/' '\\' | tr '*' '+')
+		artist=$(echo "$songs" | sed -n "$i"p | tr ">" "\n" | grep "</username" | cut -d "<" -f 1)
 		if [ -e "$filename" ]; then
 			echo "[!] The song $filename has already been downloaded..."  && exit
 		else
@@ -123,7 +125,7 @@ function downset() {  #done!
         if [[ "$title" == "Play" ]] ; then
             title=$(echo "$page" | grep $id | grep id | grep -oE "\"title\":\"[^\"]*" | sed 's/"title":"//' | sed 's/\\u0026/\&/g' | recode html..ascii)
         fi
-		#artist=$(echo "$page" | grep -A3 $id | grep byArtist | cut -d"\"" -f2)
+		artist=$(echo "$page" | grep -A3 $id | grep byArtist | cut -d"\"" -f2)
         filename=$(echo "$title".mp3 | tr '/' '\\')
         		if [ -e "$filename" ]; then
 			echo "[!] The song $filename has already been downloaded..."  && exit
@@ -140,6 +142,7 @@ function downset() {  #done!
 		else
 			wget -c --max-redirect=1000 --trust-server-names -U 'Mozilla/5.0' -O "$filename" "$songurl";
 		fi
+		settags "$artist" "$title" "$filename"
 		echo "[i] Downloading of $filename finished."
 		echo ''
     done
