@@ -55,12 +55,12 @@ echo "[+] Downloading $songcount songs from page $page..."
 for (( songid=1; songid <= $songcount; songid++ ))
 do
   title=`echo "$titles" | sed -n "$songid"p`
-  echo "[-] Downloading $title..."
+  echo -e "[-] Downloading $title..."
   url=`echo "$songs" | sed -n "$songid"p`
   if $curlinstalled; then
-    curl -C - -s -L --user-agent 'Mozilla/5.0' -o "$title.mp3" $url;
+    curl -C - -s -L --user-agent 'Mozilla/5.0' -o "`echo -e "$title.mp3"`" $url;
   else
-    wget -c -q --max-redirect=1000 --user-agent 'Mozilla/5.0' -O "$title.mp3" $url;
+    wget -c -q --max-redirect=1000 --user-agent 'Mozilla/5.0' -O "`echo -e "$title.mp3"`" $url;
   fi
 done
 done
